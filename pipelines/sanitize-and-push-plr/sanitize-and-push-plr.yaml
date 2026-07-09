@@ -126,10 +126,10 @@ spec:
 
               echo "=== Finding source build PipelineRun ==="
               PLR_NAME=$(echo "${SNAPSHOT_JSON}" \
-                | jq -r '.metadata.annotations["appstudio.openshift.io/snapshot-source-pipelinerun"] // empty')
+                | jq -r '.metadata.labels["appstudio.openshift.io/build-pipelinerun"] // empty')
 
               if [[ -z "${PLR_NAME}" ]]; then
-                echo "WARNING: No snapshot-source-pipelinerun annotation. Falling back to label + finalizer search..."
+                echo "WARNING: No build-pipelinerun label on Snapshot. Falling back to label + finalizer search..."
                 PLR_NAME=$(kubectl get pipelinerun -n "${SNAPSHOT_NAMESPACE}" \
                   -l "appstudio.openshift.io/component=${COMPONENT_NAME}" \
                   -l "pipelines.appstudio.openshift.io/type=build" \
@@ -283,11 +283,12 @@ spec:
 
               PLR_NAME=$(kubectl get snapshot "${SNAPSHOT_NAME}" \
                 -n "${SNAPSHOT_NAMESPACE}" \
-                -o jsonpath='{.metadata.annotations.appstudio\.openshift\.io/snapshot-source-pipelinerun}' \
+                -o jsonpath='{.metadata.labels.appstudio\.openshift\.io/build-pipelinerun}' \
                 2>/dev/null || true)
 
               if [[ -z "${PLR_NAME}" ]]; then
-                echo "WARNING: No annotation on Snapshot ${SNAPSHOT_NAME}. Falling back to label + finalizer search..."
+                echo "WARNING: No build-pipelinerun label on Snapshot ${SNAPSHOT_NAME}."
+                echo "Falling back to label + finalizer search..."
                 PLR_NAME=$(kubectl get pipelinerun -n "${SNAPSHOT_NAMESPACE}" \
                   -l "appstudio.openshift.io/component=${COMPONENT_NAME}" \
                   -l "pipelines.appstudio.openshift.io/type=build" \

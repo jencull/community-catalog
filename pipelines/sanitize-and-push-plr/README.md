@@ -7,8 +7,7 @@ Intended to run after a managed release pipeline has pushed the container image 
 
 After a managed release pipeline completes, this pipeline:
 
-1. Finds the source build PipelineRun via the Snapshot annotation
-(`appstudio.openshift.io/snapshot-source-pipelinerun`). If the annotation is absent, falls back to a label selector filtered by the `test.appstudio.openshift.io/pipelinerun` finalizer.
+1. Finds the source build PipelineRun via the `appstudio.openshift.io/build-pipelinerun` label on the Snapshot. If the label is absent, falls back to a label selector filtered by the `test.appstudio.openshift.io/pipelinerun` finalizer.
 2. Sanitizes the PipelineRun JSON by stripping volatile metadata (uid, resourceVersion, timestamps, managedFields), integration-service labels and annotations, and execution status fields that differ on every run.
 3. Replaces the `IMAGE_URL` and `IMAGE_DIGEST` results in the sanitized PipelineRun with the permanently released image location so downstream consumers reference the correct registry.
 4. Pushes the sanitized PipelineRun as an OCI artifact (`application/vnd.appstudio.pipelinerun+json`) to the target Quay repository with two tags:
